@@ -1,0 +1,48 @@
+# FRP Tunnel — add-on de Home Assistant
+# Cliente frpc (frp v0.72.0, nov-2026) que expone un puerto local (p. ej.
+# Home Assistant) mediante un túnel TCP contra un servidor frps.
+#
+# Notas de formato 2026:
+# - Claves requeridas: name, version, slug, description, arch.
+# - 'version' SIEMPRE entrecomillada en YAML (aquí "1.0.0").
+# - Sin clave 'image' => el Supervisor construye la imagen localmente en el
+#   dispositivo a partir del Dockerfile de esta carpeta.
+# - init: false porque la imagen base oficial usa S6 overlay v3.
+# - host_network: true => el add-on comparte el netns del host HAOS con
+#   Home Assistant Core, así que 127.0.0.1:<localport> apunta a HA.
+name: FRP Tunnel
+version: "1.0.0"
+# slug = nombre de la carpeta (requisito 2026)
+slug: frpc
+description: >-
+  Cliente frp (frpc) para exponer Home Assistant vía túnel TCP contra un
+  servidor frps, con IP y puerto local configurables y autodiagnóstico de
+  puertos al arrancar.
+url: https://github.com/fatedier/frp
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+init: false
+host_network: true
+options:
+  serverip: ""
+  serverport: 7000
+  token: ""
+  localip: "127.0.0.1"
+  # Default 80: desde HA 2026.8 las instalaciones nuevas de HAOS escuchan ahi
+  # (8123 solo redirige durante el onboarding); en instalaciones previas, 8123.
+  localport: 80
+  remoteport: 8123
+  encryption: true
+  compression: true
+schema:
+  serverip: str
+  serverport: port
+  token: "str?"
+  localip: str
+  localport: int
+  remoteport: int
+  encryption: bool
+  compression: bool
